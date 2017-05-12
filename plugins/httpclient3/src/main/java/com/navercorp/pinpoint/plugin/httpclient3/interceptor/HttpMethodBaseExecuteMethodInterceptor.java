@@ -19,6 +19,7 @@ package com.navercorp.pinpoint.plugin.httpclient3.interceptor;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.navercorp.pinpoint.common.util.StringUtils;
 import org.apache.commons.httpclient.HttpConnection;
 import org.apache.commons.httpclient.HttpConstants;
 import org.apache.commons.httpclient.HttpMethod;
@@ -49,7 +50,6 @@ import com.navercorp.pinpoint.bootstrap.util.FixedByteArrayOutputStream;
 import com.navercorp.pinpoint.bootstrap.util.InterceptorUtils;
 import com.navercorp.pinpoint.bootstrap.util.SimpleSampler;
 import com.navercorp.pinpoint.bootstrap.util.SimpleSamplerFactory;
-import com.navercorp.pinpoint.bootstrap.util.StringUtils;
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
 import com.navercorp.pinpoint.plugin.httpclient3.HttpClient3CallContext;
 import com.navercorp.pinpoint.plugin.httpclient3.HttpClient3CallContextFactory;
@@ -337,7 +337,7 @@ public class HttpMethodBaseExecuteMethodInterceptor implements AroundInterceptor
                         String entityValue;
                         String charSet = entityEnclosingMethod.getRequestCharSet();
 
-                        if (charSet == null || charSet.isEmpty()) {
+                        if (StringUtils.isEmpty(charSet)) {
                             charSet = HttpConstants.DEFAULT_CONTENT_CHARSET;
                         }
                         
@@ -382,10 +382,10 @@ public class HttpMethodBaseExecuteMethodInterceptor implements AroundInterceptor
         }
 
         final String value = cookie.getValue();
-        if (value != null && !value.isEmpty()) {
+        if (StringUtils.isNotEmpty(value)) {
             if (cookieSampler.isSampling()) {
                 final SpanEventRecorder recorder = trace.currentSpanEventRecorder();
-                recorder.recordAttribute(AnnotationKey.HTTP_COOKIE, StringUtils.drop(value, MAX_READ_SIZE));
+                recorder.recordAttribute(AnnotationKey.HTTP_COOKIE, StringUtils.abbreviate(value, MAX_READ_SIZE));
             }
         }
     }

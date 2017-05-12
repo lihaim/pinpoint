@@ -24,6 +24,7 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import com.navercorp.pinpoint.common.util.StringUtils;
 import javassist.CtBehavior;
 import javassist.CtClass;
 import javassist.Modifier;
@@ -101,7 +102,7 @@ public final class JavaAssistUtils {
     }
 
     public static String javaTypeToJvmSignature(String[] javaTypeArray) {
-        if (javaTypeArray == null || javaTypeArray.length == 0) {
+        if (com.navercorp.pinpoint.common.util.ArrayUtils.isEmpty(javaTypeArray)) {
             return "()";
         }
         final StringBuilder buffer = new StringBuilder();
@@ -177,6 +178,23 @@ public final class JavaAssistUtils {
         return jvmName.replace('/', '.');
     }
 
+    /**
+     * java/lang/String -> java.lang.String
+     * @param jvmNameArray
+     * @return
+     */
+    public static List<String> jvmNameToJavaName(List<String> jvmNameArray) {
+        if (jvmNameArray == null) {
+            return Collections.emptyList();
+        }
+
+        List<String> list = new ArrayList<String>(jvmNameArray.size());
+        for (String jvmName : jvmNameArray) {
+            list.add(jvmNameToJavaName(jvmName));
+        }
+        return list;
+    }
+
     private static String appendJvmArray(String signature, int javaObjectArraySize) {
         if (javaObjectArraySize == 0) {
             return signature;
@@ -240,6 +258,16 @@ public final class JavaAssistUtils {
         }
     }
 
+    // to variable name.
+    // '.' '$' '[' ']' => '_'
+    public static String javaClassNameToVariableName(String javaClassName) {
+        if (javaClassName == null) {
+            throw new NullPointerException("java class name must not be null");
+        }
+
+        return javaClassName.replace('.', '_').replace('$', '_').replace('[', '_').replace(']', '_');
+    }
+
     private static String byteCodeSignatureToObjectType(String signature, int startIndex) {
         final char scheme = signature.charAt(startIndex);
         switch (scheme) {
@@ -287,7 +315,7 @@ public final class JavaAssistUtils {
     }
 
     private static int getArraySize(String description) {
-        if (description == null || description.isEmpty()) {
+        if (StringUtils.isEmpty(description)) {
             return 0;
         }
         int arraySize = 0;

@@ -1,8 +1,9 @@
 package com.navercorp.pinpoint.profiler.instrument;
 
 import com.navercorp.pinpoint.common.util.ClassLoaderUtils;
+import com.navercorp.pinpoint.profiler.util.BytecodeUtils;
 import com.navercorp.pinpoint.profiler.util.JavaAssistUtils;
-import com.navercorp.pinpoint.test.util.BytecodeUtils;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
@@ -12,6 +13,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import java.util.Collections;
 
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 
 /**
@@ -20,25 +22,25 @@ import static org.mockito.Mockito.times;
 @RunWith(MockitoJUnitRunner.class)
 public class BytecodeDumpServiceTest {
 
-    private final String jvmClassName = JavaAssistUtils.javaNameToJvmName("java.lang.String");;
+    private final String classInternalName = JavaAssistUtils.javaNameToJvmName("java.lang.String");
 
     @Mock
     private ASMBytecodeDisassembler disassembler;
 
     @InjectMocks
-    private BytecodeDumpService bytecodeDumpService = new ASMBytecodeDumpService(true, true, true, Collections.singletonList(jvmClassName));
+    private BytecodeDumpService bytecodeDumpService = new ASMBytecodeDumpService(true, true, true, Collections.singletonList(classInternalName));
 
     @InjectMocks
-    private BytecodeDumpService disableBytecodeDumpService = new ASMBytecodeDumpService(false, false, false, Collections.singletonList(jvmClassName));
+    private BytecodeDumpService disableBytecodeDumpService = new ASMBytecodeDumpService(false, false, false, Collections.singletonList(classInternalName));
 
     @Test
     public void dumpBytecode() throws Exception {
 
         ClassLoader classLoader = ClassLoaderUtils.getDefaultClassLoader();
-        byte[] classFile = BytecodeUtils.getClassFile(classLoader, jvmClassName);
+        byte[] classFile = BytecodeUtils.getClassFile(classLoader, classInternalName);
 
 
-        bytecodeDumpService.dumpBytecode("testDump", jvmClassName, classFile, classLoader);
+        bytecodeDumpService.dumpBytecode("testDump", classInternalName, classFile, classLoader);
 
         Mockito.verify(this.disassembler, times(1)).dumpBytecode(classFile);
         Mockito.verify(this.disassembler, times(1)).dumpVerify(classFile, classLoader);
@@ -50,14 +52,14 @@ public class BytecodeDumpServiceTest {
     public void dumpBytecode_disable() throws Exception {
 
         ClassLoader classLoader = ClassLoaderUtils.getDefaultClassLoader();
-        byte[] classFile = BytecodeUtils.getClassFile(classLoader, jvmClassName);
+        byte[] classFile = BytecodeUtils.getClassFile(classLoader, classInternalName);
 
 
-        disableBytecodeDumpService.dumpBytecode("disableTestDump", jvmClassName, classFile, classLoader);
+        disableBytecodeDumpService.dumpBytecode("disableTestDump", classInternalName, classFile, classLoader);
 
-        Mockito.verify(this.disassembler, times(0)).dumpBytecode(classFile);
-        Mockito.verify(this.disassembler, times(0)).dumpVerify(classFile, classLoader);
-        Mockito.verify(this.disassembler, times(0)).dumpASM(classFile);
+        Mockito.verify(this.disassembler, never()).dumpBytecode(classFile);
+        Mockito.verify(this.disassembler, never()).dumpVerify(classFile, classLoader);
+        Mockito.verify(this.disassembler, never()).dumpASM(classFile);
     }
 
 
@@ -65,13 +67,13 @@ public class BytecodeDumpServiceTest {
     public void dumpBytecode_filter() throws Exception {
 
         ClassLoader classLoader = ClassLoaderUtils.getDefaultClassLoader();
-        byte[] classFile = BytecodeUtils.getClassFile(classLoader, jvmClassName);
+        byte[] classFile = BytecodeUtils.getClassFile(classLoader, classInternalName);
 
         bytecodeDumpService.dumpBytecode("testDump", "invalidName", classFile, classLoader);
 
-        Mockito.verify(this.disassembler, times(0)).dumpBytecode(classFile);
-        Mockito.verify(this.disassembler, times(0)).dumpVerify(classFile, classLoader);
-        Mockito.verify(this.disassembler, times(0)).dumpASM(classFile);
+        Mockito.verify(this.disassembler, never()).dumpBytecode(classFile);
+        Mockito.verify(this.disassembler, never()).dumpVerify(classFile, classLoader);
+        Mockito.verify(this.disassembler, never()).dumpASM(classFile);
 
     }
 

@@ -17,6 +17,8 @@
 package com.navercorp.pinpoint.profiler.context;
 
 import com.navercorp.pinpoint.bootstrap.context.FrameAttachment;
+
+import com.navercorp.pinpoint.common.util.StringUtils;
 import com.navercorp.pinpoint.thrift.dto.TIntStringValue;
 import com.navercorp.pinpoint.thrift.dto.TSpanEvent;
 
@@ -32,6 +34,8 @@ public class SpanEvent extends TSpanEvent implements FrameAttachment {
     private int stackId;
     private boolean timeRecording = true;
     private Object frameObject;
+    private long startTime;
+    private long afterTime;
 
     public SpanEvent(Span span) {
         if (span == null) {
@@ -48,9 +52,18 @@ public class SpanEvent extends TSpanEvent implements FrameAttachment {
         this.addToAnnotations(annotation);
     }
 
-    public void setExceptionInfo(int exceptionClassId, String exceptionMessage) {
+    public void setExceptionInfo(boolean markError, int exceptionClassId, String exceptionMessage) {
+        setExceptionInfo(exceptionClassId, exceptionMessage);
+        if (markError) {
+            if (!span.isSetErrCode()) {
+                span.setErrCode(1);
+            }
+        }
+    }
+
+    void setExceptionInfo(int exceptionClassId, String exceptionMessage) {
         final TIntStringValue exceptionInfo = new TIntStringValue(exceptionClassId);
-        if (exceptionMessage != null && !exceptionMessage.isEmpty()) {
+        if (StringUtils.isNotEmpty(exceptionMessage)) {
             exceptionInfo.setStringValue(exceptionMessage);
         }
         super.setExceptionInfo(exceptionInfo);
@@ -58,27 +71,20 @@ public class SpanEvent extends TSpanEvent implements FrameAttachment {
 
 
     public void markStartTime() {
-//        spanEvent.setStartElapsed((int) (startTime - parentSpanStartTime));
-        final int startElapsed = (int)(System.currentTimeMillis() - span.getStartTime());
-        
-        // If startElapsed is 0, logic without mark is useless. Don't do that.
-        // The first SpanEvent of a Span could result in 0. Not likely afterwards.
-        this.setStartElapsed(startElapsed);
+        this.startTime = System.currentTimeMillis();
     }
 
     public long getStartTime() {
-        return span.getStartTime() + getStartElapsed();
+        return startTime;
     }
 
     public void markAfterTime() {
-        final int endElapsed = (int)(System.currentTimeMillis() - getStartTime());
-        if (endElapsed != 0) {
-            this.setEndElapsed(endElapsed);
-        }
+        this.afterTime = System.currentTimeMillis();
+
     }
 
     public long getAfterTime() {
-        return span.getStartTime() + getStartElapsed() + getEndElapsed();
+        return afterTime;
     }
 
     public int getStackId() {

@@ -37,8 +37,9 @@ import com.navercorp.pinpoint.bootstrap.sampler.SamplingFlagUtils;
 import com.navercorp.pinpoint.bootstrap.util.InterceptorUtils;
 import com.navercorp.pinpoint.bootstrap.util.SimpleSampler;
 import com.navercorp.pinpoint.bootstrap.util.SimpleSamplerFactory;
-import com.navercorp.pinpoint.bootstrap.util.StringUtils;
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
+import com.navercorp.pinpoint.common.util.CollectionUtils;
+import com.navercorp.pinpoint.common.util.StringUtils;
 import com.navercorp.pinpoint.plugin.ning.asynchttpclient.NingAsyncHttpClientPlugin;
 import com.navercorp.pinpoint.plugin.ning.asynchttpclient.NingAsyncHttpClientPluginConfig;
 import com.ning.http.client.FluentCaseInsensitiveStringsMap;
@@ -241,7 +242,7 @@ public class ExecuteRequestInterceptor implements AroundInterceptor {
                     sb.append(",");
                 }
             }
-            recorder.recordAttribute(AnnotationKey.HTTP_COOKIE, StringUtils.drop(sb.toString(), config.getCookieDumpSize()));
+            recorder.recordAttribute(AnnotationKey.HTTP_COOKIE, StringUtils.abbreviate(sb.toString(), config.getCookieDumpSize()));
         }
     }
 
@@ -264,7 +265,7 @@ public class ExecuteRequestInterceptor implements AroundInterceptor {
     protected void recordNonMultipartData(final com.ning.http.client.Request httpRequest, final SpanEventRecorder recorder) {
         final String stringData = httpRequest.getStringData();
         if (stringData != null) {
-            recorder.recordAttribute(AnnotationKey.HTTP_PARAM_ENTITY, StringUtils.drop(stringData, config.getEntityDumpSize()));
+            recorder.recordAttribute(AnnotationKey.HTTP_PARAM_ENTITY, StringUtils.abbreviate(stringData, config.getEntityDumpSize()));
             return;
         }
 
@@ -295,7 +296,8 @@ public class ExecuteRequestInterceptor implements AroundInterceptor {
      */
     protected void recordMultipartData(final com.ning.http.client.Request httpRequest, final SpanEventRecorder recorder) {
         List<Part> parts = httpRequest.getParts();
-        if (parts != null && parts.isEmpty()) {
+        // bug fix : parts != null && ****!parts.isEmpty()
+        if (CollectionUtils.isNotEmpty(parts)) {
             StringBuilder sb = new StringBuilder(config.getEntityDumpSize() * 2);
             Iterator<Part> iterator = parts.iterator();
             while (iterator.hasNext()) {
@@ -335,7 +337,7 @@ public class ExecuteRequestInterceptor implements AroundInterceptor {
                     sb.append(",");
                 }
             }
-            recorder.recordAttribute(AnnotationKey.HTTP_PARAM_ENTITY, StringUtils.drop(sb.toString(), config.getEntityDumpSize()));
+            recorder.recordAttribute(AnnotationKey.HTTP_PARAM_ENTITY, StringUtils.abbreviate(sb.toString(), config.getEntityDumpSize()));
         }
     }
 
@@ -350,7 +352,7 @@ public class ExecuteRequestInterceptor implements AroundInterceptor {
             FluentStringsMap requestParams = httpRequest.getParams();
             if (requestParams != null) {
                 String params = paramsToString(requestParams, config.getParamDumpSize());
-                recorder.recordAttribute(AnnotationKey.HTTP_PARAM, StringUtils.drop(params, config.getParamDumpSize()));
+                recorder.recordAttribute(AnnotationKey.HTTP_PARAM, StringUtils.abbreviate(params, config.getParamDumpSize()));
             }
         }
     }

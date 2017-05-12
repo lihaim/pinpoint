@@ -19,8 +19,8 @@ package com.navercorp.pinpoint.collector.cluster.zookeeper;
 import com.navercorp.pinpoint.collector.cluster.ClusterPointRepository;
 import com.navercorp.pinpoint.collector.cluster.PinpointServerClusterPoint;
 import com.navercorp.pinpoint.common.server.util.concurrent.CommonStateContext;
-import com.navercorp.pinpoint.collector.receiver.tcp.AgentHandshakePropertyType;
 import com.navercorp.pinpoint.rpc.common.SocketStateCode;
+import com.navercorp.pinpoint.rpc.packet.HandshakePropertyType;
 import com.navercorp.pinpoint.rpc.server.PinpointServer;
 import com.navercorp.pinpoint.rpc.server.handler.ServerStateChangeEventHandler;
 import com.navercorp.pinpoint.rpc.util.MapUtils;
@@ -35,7 +35,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * @Author Taejin Koo
+ * @author Taejin Koo
  */
 public class ZookeeperProfilerClusterManager implements ServerStateChangeEventHandler {
 
@@ -143,9 +143,9 @@ public class ZookeeperProfilerClusterManager implements ServerStateChangeEventHa
 
 
         String clusterData = new String(contents, charset);
-        String[] allClusterData = clusterData.split(PROFILER_SEPARATOR);
+        List<String> allClusterData = com.navercorp.pinpoint.common.util.StringUtils.tokenizeToStringList(clusterData, PROFILER_SEPARATOR);
 
-        List<String> result = new ArrayList<>(allClusterData.length);
+        List<String> result = new ArrayList<>(allClusterData.size());
         for (String eachClusterData : allClusterData) {
             if (!StringUtils.isBlank(eachClusterData)) {
                 result.add(eachClusterData);
@@ -172,8 +172,8 @@ public class ZookeeperProfilerClusterManager implements ServerStateChangeEventHa
     }
 
     private boolean skipAgent(Map<Object, Object> agentProperties) {
-        String applicationName = MapUtils.getString(agentProperties, AgentHandshakePropertyType.APPLICATION_NAME.getName());
-        String agentId = MapUtils.getString(agentProperties, AgentHandshakePropertyType.AGENT_ID.getName());
+        String applicationName = MapUtils.getString(agentProperties, HandshakePropertyType.APPLICATION_NAME.getName());
+        String agentId = MapUtils.getString(agentProperties, HandshakePropertyType.AGENT_ID.getName());
 
         if (StringUtils.isBlank(applicationName) || StringUtils.isBlank(agentId)) {
             return true;

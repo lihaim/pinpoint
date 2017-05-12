@@ -18,9 +18,11 @@ package com.navercorp.pinpoint.collector.handler;
 
 import com.navercorp.pinpoint.collector.mapper.thrift.stat.AgentStatBatchMapper;
 import com.navercorp.pinpoint.collector.mapper.thrift.stat.AgentStatMapper;
+import com.navercorp.pinpoint.collector.service.AgentStatService;
 import com.navercorp.pinpoint.common.server.bo.stat.ActiveTraceBo;
 import com.navercorp.pinpoint.common.server.bo.stat.AgentStatBo;
 import com.navercorp.pinpoint.common.server.bo.stat.CpuLoadBo;
+import com.navercorp.pinpoint.common.server.bo.stat.DataSourceListBo;
 import com.navercorp.pinpoint.common.server.bo.stat.JvmGcBo;
 import com.navercorp.pinpoint.common.server.bo.stat.JvmGcDetailedBo;
 import com.navercorp.pinpoint.common.server.bo.stat.TransactionBo;
@@ -33,6 +35,10 @@ import org.springframework.stereotype.Service;
 import com.navercorp.pinpoint.collector.dao.AgentStatDaoV2;
 import com.navercorp.pinpoint.thrift.dto.TAgentStat;
 import com.navercorp.pinpoint.thrift.dto.TAgentStatBatch;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * @author emeroad
@@ -49,20 +55,8 @@ public class AgentStatHandlerV2 implements Handler {
     @Autowired
     private AgentStatBatchMapper agentStatBatchMapper;
 
-    @Autowired
-    private AgentStatDaoV2<JvmGcBo> jvmGcDao;
-
-    @Autowired
-    private AgentStatDaoV2<JvmGcDetailedBo> jvmGcDetailedDao;
-
-    @Autowired
-    private AgentStatDaoV2<CpuLoadBo> cpuLoadDao;
-
-    @Autowired
-    private AgentStatDaoV2<TransactionBo> transactionDao;
-
-    @Autowired
-    private AgentStatDaoV2<ActiveTraceBo> activeTraceDao;
+    @Autowired(required = false)
+    private List<AgentStatService> agentStatServiceList = Collections.emptyList();
 
     @Override
     public void handle(TBase<?, ?> tbase) {
@@ -82,31 +76,29 @@ public class AgentStatHandlerV2 implements Handler {
         if (logger.isDebugEnabled()) {
             logger.debug("Received TAgentStat={}", tAgentStat);
         }
+
         AgentStatBo agentStatBo = this.agentStatMapper.map(tAgentStat);
-        this.insertAgentStatBatch(agentStatBo);
+
+        if (agentStatBo == null) {
+            return;
+        }
+        for (AgentStatService agentStatService : agentStatServiceList) {
+            agentStatService.save(agentStatBo);
+        }
     }
 
     private void handleAgentStatBatch(TAgentStatBatch tAgentStatBatch) {
         if (logger.isDebugEnabled()) {
             logger.debug("Received TAgentStatBatch={}", tAgentStatBatch);
         }
-        AgentStatBo agentStatBo = this.agentStatBatchMapper.map(tAgentStatBatch);
-        this.insertAgentStatBatch(agentStatBo);
-    }
 
-    private void insertAgentStatBatch(AgentStatBo agentStatBo) {
+        AgentStatBo agentStatBo = this.agentStatBatchMapper.map(tAgentStatBatch);
+
         if (agentStatBo == null) {
             return;
         }
-        final String agentId = agentStatBo.getAgentId();
-        try {
-            this.jvmGcDao.insert(agentId, agentStatBo.getJvmGcBos());
-            this.jvmGcDetailedDao.insert(agentId, agentStatBo.getJvmGcDetailedBos());
-            this.cpuLoadDao.insert(agentId, agentStatBo.getCpuLoadBos());
-            this.transactionDao.insert(agentId, agentStatBo.getTransactionBos());
-            this.activeTraceDao.insert(agentId, agentStatBo.getActiveTraceBos());
-        } catch (Exception e) {
-            logger.warn("Error inserting AgentStatBo. Caused:{}", e.getMessage(), e);
+        for (AgentStatService agentStatService : agentStatServiceList) {
+            agentStatService.save(agentStatBo);
         }
     }
 }

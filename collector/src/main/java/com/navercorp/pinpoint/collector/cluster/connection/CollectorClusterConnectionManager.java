@@ -1,19 +1,17 @@
 /*
+ * Copyright 2016 NAVER Corp.
  *
- *  * Copyright 2014 NAVER Corp.
- *  *
- *  * Licensed under the Apache License, Version 2.0 (the "License");
- *  * you may not use this file except in compliance with the License.
- *  * You may obtain a copy of the License at
- *  *
- *  *     http://www.apache.org/licenses/LICENSE-2.0
- *  *
- *  * Unless required by applicable law or agreed to in writing, software
- *  * distributed under the License is distributed on an "AS IS" BASIS,
- *  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *  * See the License for the specific language governing permissions and
- *  * limitations under the License.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  *
  */
 
@@ -32,7 +30,7 @@ import java.util.List;
 /**
  * @Author Taejin Koo
  */
-public class CollectorClusterConnectionManager {
+public class CollectorClusterConnectionManager implements  ClusterConnectionManager {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -55,6 +53,7 @@ public class CollectorClusterConnectionManager {
         this.clusterAcceptor = acceptor;
     }
 
+    @Override
     public void start() {
         logger.info("{} initialization started.", ClassUtils.simpleClassName(this));
 
@@ -69,6 +68,7 @@ public class CollectorClusterConnectionManager {
         logger.info("{} initialization completed.", ClassUtils.simpleClassName(this));
     }
 
+    @Override
     public void stop() {
         logger.info("{} destroying started.", ClassUtils.simpleClassName(this));
 
@@ -89,6 +89,7 @@ public class CollectorClusterConnectionManager {
         logger.info("{} destroying completed.", ClassUtils.simpleClassName(this));
     }
 
+    @Override
     public void connectPointIfAbsent(InetSocketAddress address) {
         logger.info("localhost -> {} connect started.", address);
 
@@ -102,6 +103,7 @@ public class CollectorClusterConnectionManager {
         logger.info("localhost -> {} connect completed.", address);
     }
 
+    @Override
     public void disconnectPoint(SocketAddress address) {
         logger.info("localhost -> {} disconnect started.", address);
 
@@ -114,6 +116,7 @@ public class CollectorClusterConnectionManager {
         }
     }
 
+    @Override
     public List<SocketAddress> getConnectedAddressList() {
         return socketRepository.getAddressList();
     }

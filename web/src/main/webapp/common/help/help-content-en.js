@@ -79,10 +79,10 @@
 			},
 			depth : {
 				mainStyle: "",
-				title: '<img src="images/inbound.png" width="22px" height="22px" style="margin-top:-4px;"> Inbound 와 <img src="images/outbound.png" width="22px" height="22px" style="margin-top:-4px"> Outbound',
+				title: '<img src="images/inbound.png" width="22px" height="22px" style="margin-top:-4px;"> Inbound and <img src="images/outbound.png" width="22px" height="22px" style="margin-top:-4px"> Outbound',
 				desc: "Search-depth of server map.",
 				category : [{
-					title: "[범례]",
+					title: "[Legend]",
 					items: [{
 						name: "Inbound",
 						desc: "Number of depth to render for requests coming in to the selected node."
@@ -219,7 +219,7 @@
 					}]
 				},{
 					title: "[Usage]",
-					image: "<img src='/images/help/scatter_01.png' width='200px' height='125px'>",
+					image: "<img src='images/help/scatter_01.png' width='200px' height='125px'>",
 					items: [{
 						name: "<span class='glyphicon glyphicon-plus'></span>",
 						desc: "Drag on the scatter chart to show detailed information on selected transactions."
@@ -510,7 +510,7 @@
 						name: "Used",
 						desc: "Heap currently in use"
 					},{
-						name: "FCG",
+						name: "FGC",
 						desc: "Full garbage collection duration (number of FGCs in parenthesis if it occurred more than once)"
 					}]
 				}]
@@ -528,7 +528,7 @@
 						name: "Used",
 						desc: "Heap currently in use"
 					},{
-						name: "FCG",
+						name: "FGC",
 						desc: "Full garbage collection duration (number of FGCs in parenthesis if it occurred more than once)"
 					}]
 				}]
@@ -572,6 +572,60 @@
                     }]
                 }]
             },
+			activeThread: {
+				mainStyle: "",
+				title: "Active Thread",
+				desc: "Snapshots of the agent's active thread count, categorized by how long they have active for serving a request.",
+				category: [{
+					title: "[Legend]",
+					items: [{
+						name: "Fast (1s)",
+						desc: "Number of threads that have been active for less than or equal to 1s"
+					},{
+						name: "Normal (3s)",
+						desc: "Number of threads that have been active for less than or equal to 3s but longer than 1s"
+					},{
+						name: "Slow (5s)",
+						desc: "Number of threads that have been active for less than or equal to 5s but longer than 3s"
+					},{
+						name: "Very Slow (slow)",
+						desc: "Number of threads that have been active for longer than 5s"
+					}]
+				}]
+			},
+			dataSource: {
+				mainStyle: "",
+				title: "Data Source",
+				desc: "Show the status of agent's data source.",
+				category: [{
+					title: "[Legend]",
+					items: [{
+						name: "Active Avg",
+						desc: "Average number of active connections"
+					},{
+						name: "Active Max",
+						desc: "Maximum number of active connections"
+					},{
+						name: "Total Max",
+						desc: "The maximum number of active connections that can be allocated at the same time"
+					},{
+						name: "Type",
+						desc: "DB Connection Pool Type"
+					}]
+				}]
+			},
+			responseTime: {
+				mainStyle: "",
+				title: "Response time",
+				desc: "Shows the status of agent's response time.",
+				category: [{
+					title: "[Legend]",
+					items: [{
+						name: "Avg",
+						desc: "Average Response Time (unit : milliseconds)"
+					}]
+				}]
+			},
 			wrongApp: [
 				"<div style='font-size:12px'>The agent is currently registered under {{application2}} due to the following:<br>",
 				"1. The agent has moved from {{application1}} to {{application2}}<br>",
@@ -595,7 +649,7 @@
 						desc: "The overall duration of the method call from method entry until method exit"
 					},{
 						name: "Exec(%)",
-						desc: "<img src='/images/help/callTree_01.png'/>"
+						desc: "<img src='images/help/callTree_01.png'/>"
 					},{
 						name: "",
 						desc: "<span style='background-color:#FFFFFF;color:#5bc0de'>Light blue</span> The execution time of the method call as a percentage of the total execution time of the transaction"

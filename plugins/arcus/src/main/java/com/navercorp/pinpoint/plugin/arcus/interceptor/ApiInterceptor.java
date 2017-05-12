@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright 2014 NAVER Corp.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -159,7 +159,6 @@ public class ApiInterceptor implements AroundInterceptor {
             try {
                 if (isAsynchronousInvocation(target, args, result, throwable)) {
                     // set asynchronous trace
-                    this.traceContext.getAsyncId();
                     final AsyncTraceId asyncTraceId = trace.getAsyncTraceId();
                     recorder.recordNextAsyncId(asyncTraceId.getAsyncId());
                     // type check isAsynchronousInvocation

@@ -20,6 +20,8 @@ import java.io.IOException;
 
 import com.navercorp.pinpoint.bootstrap.interceptor.scope.InterceptorScope;
 import com.navercorp.pinpoint.bootstrap.interceptor.scope.InterceptorScopeInvocation;
+import com.navercorp.pinpoint.common.Charsets;
+import com.navercorp.pinpoint.common.util.StringUtils;
 import com.navercorp.pinpoint.plugin.httpclient4.HttpCallContext;
 import com.navercorp.pinpoint.plugin.httpclient4.HttpCallContextFactory;
 import com.navercorp.pinpoint.plugin.httpclient4.HttpClient4PluginConfig;
@@ -52,7 +54,6 @@ import com.navercorp.pinpoint.bootstrap.util.FixedByteArrayOutputStream;
 import com.navercorp.pinpoint.bootstrap.util.InterceptorUtils;
 import com.navercorp.pinpoint.bootstrap.util.SimpleSampler;
 import com.navercorp.pinpoint.bootstrap.util.SimpleSamplerFactory;
-import com.navercorp.pinpoint.bootstrap.util.StringUtils;
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
 import com.navercorp.pinpoint.plugin.httpclient4.HttpClient4Constants;
 
@@ -297,10 +298,10 @@ public class HttpRequestExecutorExecuteMethodInterceptor implements AroundInterc
         org.apache.http.Header[] cookies = httpMessage.getHeaders("Cookie");
         for (org.apache.http.Header header : cookies) {
             final String value = header.getValue();
-            if (value != null && !value.isEmpty()) {
+            if (StringUtils.isNotEmpty(value)) {
                 if (cookieSampler.isSampling()) {
                     final SpanEventRecorder recorder = trace.currentSpanEventRecorder();
-                    recorder.recordAttribute(AnnotationKey.HTTP_COOKIE, StringUtils.drop(value, 1024));
+                    recorder.recordAttribute(AnnotationKey.HTTP_COOKIE, StringUtils.abbreviate(value, 1024));
                 }
 
                 // Can a cookie have 2 or more values?
@@ -317,7 +318,7 @@ public class HttpRequestExecutorExecuteMethodInterceptor implements AroundInterc
                 final HttpEntity entity = entityRequest.getEntity();
                 if (entity != null && entity.isRepeatable() && entity.getContentLength() > 0) {
                     if (entitySampler.isSampling()) {
-                        final String entityString = entityUtilsToString(entity, "UTF8", 1024);
+                        final String entityString = entityUtilsToString(entity, Charsets.UTF_8_NAME, 1024);
                         final SpanEventRecorder recorder = trace.currentSpanEventRecorder();
                         recorder.recordAttribute(AnnotationKey.HTTP_PARAM_ENTITY, entityString);
                     }

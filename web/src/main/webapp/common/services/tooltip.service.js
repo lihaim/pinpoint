@@ -9,6 +9,10 @@
 	 * @class
 	 */
 	pinpointApp.constant('TooltipServiceConfig', {
+		"serverMap": {
+			"position": "bottom-right",
+			"trigger": "click"
+		},
 		"scatter": {
 			"position": "bottom",
 			"trigger": "click"
@@ -34,6 +38,18 @@
 			"trigger": "click"
 		},
 		"tps": {
+			"position": "top",
+			"trigger": "click"
+		},
+		"activeThread": {
+			"position": "top",
+			"trigger": "click"
+		},
+		"dataSource": {
+			"position": "top",
+			"trigger": "click"
+		},
+		"responseTime": {
 			"position": "top",
 			"trigger": "click"
 		},
@@ -75,6 +91,8 @@
 
 		function getTooltipStr( type ) {
 			switch( type ) {
+				case "serverMap":
+					return function() { return helpContentTemplate(helpContentService.servermap["default"]); };
 				case "scatter":
 					return function() { return helpContentTemplate(helpContentService.scatter["default"]); };
 				case "navbar":
@@ -89,6 +107,12 @@
 					return function() { return helpContentTemplate(helpContentService.inspector.cpuUsage); };
 				case "tps":
 					return function() { return helpContentTemplate(helpContentService.inspector.tps); };
+				case "activeThread":
+					return function() { return helpContentTemplate(helpContentService.inspector.activeThread); };
+				case "dataSource":
+					return function() { return helpContentTemplate(helpContentService.inspector.dataSource); };
+				case "responseTime":
+					return function() { return helpContentTemplate(helpContentService.inspector.responseTime); };
 				case "responseSummaryChart":
 					return function() { return helpContentTemplate(helpContentService.nodeInfoDetails.responseSummary); };
 				case "loadChart":

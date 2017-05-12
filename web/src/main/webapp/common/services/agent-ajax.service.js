@@ -9,12 +9,19 @@
 	 * @class
 	 */
 	pinpointApp.constant('AgentAjaxServiceConfig', {
-		"agentList": "/getAgentList.pinpoint",				// agentId, timestamp ( or agentId, from, to )
-		"agentInfo": "/getAgentInfo.pinpoint", 				// agentId, timestamp
-		"agetEvent": "/getAgentEvent.pinpoint", 				// agentId, eventTimestamp, eventTypeCode
-		"agentStatus": "/getAgentStatus.pinpoint", 			// agentId, timestamp
-		"agentEventList": "/getAgentEvents.pinpoint", 		// agentId, from, to
-		"agentStateForChart": "/getAgentStat.pinpoint"		//
+		"agentList"			: "getAgentList.pinpoint",							// agentId, timestamp ( or agentId, from, to )
+		"agentInfo"			: "getAgentInfo.pinpoint", 							// agentId, timestamp
+		"agentEvent"		: "getAgentEvent.pinpoint", 						// agentId, eventTimestamp, eventTypeCode
+		"agentStatus"		: "getAgentStatus.pinpoint", 						// agentId, timestamp
+		"agentEventList"	: "getAgentEvents.pinpoint", 						// agentId, from, to
+		"agentTimeline"		: "getAgentStatusTimeline.pinpoint",
+		"jvmChart"			: "getAgentStat/jvmGc/chart.pinpoint",
+		"cpuLoadChart"		: "getAgentStat/cpuLoad/chart.pinpoint",
+		"tpsChart"			: "getAgentStat/transaction/chart.pinpoint",
+		"activeTraceChart"	: "getAgentStat/activeTrace/chart.pinpoint",
+		"dataSourceChart"	: "getAgentStat/dataSource/chartList.pinpoint",
+		"responseTimeChart" : "getAgentStat/responseTime/chart.pinpoint",
+		"agentStateForChart": "getAgentStat.pinpoint"
 	});
 
 	pinpointApp.service('AgentAjaxService', [ 'AgentAjaxServiceConfig', '$http', function ($config, $http) {
@@ -24,6 +31,24 @@
 		this.getAgentStateForChart = function( data, callback ) {
 			retrieve($config.agentStateForChart, data, callback);
 		};
+		this.getJVMChartData = function( data, callback ) {
+			retrieve($config.jvmChart, data, callback);
+		};
+		this.getCpuLoadChartData = function( data, callback ) {
+			retrieve($config.cpuLoadChart, data, callback);
+		};
+		this.getTPSChartData = function( data, callback ) {
+			retrieve($config.tpsChart, data, callback);
+		};
+		this.getActiveTraceChartData = function( data, callback ) {
+			retrieve($config.activeTraceChart, data, callback);
+		};
+		this.getResponseTimeChartData = function( data, callback ) {
+			retrieve($config.responseTimeChart, data, callback);
+		};
+		this.getDataSourceChartData = function( data, callback ) {
+			retrieve($config.dataSourceChart, data, callback);
+		};
 		this.getAgentInfo = function( data, callback ) {
 			retrieve($config.agentInfo, data, callback);
 		};
@@ -31,8 +56,12 @@
 			data.exclude = "10199";
 			retrieve($config.agentEventList, data, callback);
 		};
+		this.getAgentTimeline = function( data, callback ) {
+			data.exclude = "10199";
+			retrieve($config.agentTimeline, data, callback);
+		};
 		this.getEvent = function( data, callback ) {
-			retrieve($config.agetEvent, data, callback);
+			retrieve($config.agentEvent, data, callback);
 		};
 
 		function retrieve(url, data, callback) {

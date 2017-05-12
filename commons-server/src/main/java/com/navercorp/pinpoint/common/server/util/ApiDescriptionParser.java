@@ -17,7 +17,9 @@
 package com.navercorp.pinpoint.common.server.util;
 
 import com.navercorp.pinpoint.common.util.ApiDescription;
+import com.navercorp.pinpoint.common.util.ArrayUtils;
 import com.navercorp.pinpoint.common.util.DefaultApiDescription;
+import com.navercorp.pinpoint.common.util.StringUtils;
 import org.slf4j.LoggerFactory;
 
 import java.util.regex.Pattern;
@@ -85,7 +87,7 @@ public class ApiDescriptionParser {
     }
 
     private String[] parseSimpleParameter(String[] parameterList) {
-        if (parameterList == null || parameterList.length == 0) {
+        if (ArrayUtils.isEmpty(parameterList)) {
             return EMPTY_STRING_ARRAY;
         }
         String[] simple = new String[parameterList.length];
@@ -109,7 +111,7 @@ public class ApiDescriptionParser {
     }
 
     private String[] parseParameter(String parameterDescriptor) {
-        if (parameterDescriptor == null || parameterDescriptor.length() == 0) {
+        if (StringUtils.isEmpty(parameterDescriptor)) {
             return EMPTY_STRING_ARRAY;
         }
         return PARAMETER_REGEX.split(parameterDescriptor);
